@@ -1,0 +1,759 @@
+{
+  "name": "My workflow 121",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const data = [\n  {\n    \"ticket_id\": 10001,\n    \"created_at\": \"2026-08-01T10:00:00Z\",\n    \"updated_at\": \"2026-08-01T10:01:30Z\",\n    \"customer_email\": \"Anna.Test+trial@gmail.com\",\n    \"subject\": \"Please cancel\",\n    \"message\": \"Hi, I don't want to continue my subscription. Please cancel it.\",\n    \"product\": \"pulsefit\",\n    \"subscriptions\": [\n      {\n        \"id\": \"sub_test_001\",\n        \"product\": \"pulsefit\",\n        \"status\": \"active\",\n        \"billing_provider\": \"stripe\"\n      }\n    ]\n  },\n  {\n    \"ticket_id\": 10002,\n    \"created_at\": \"2026-08-01T11:00:00Z\",\n    \"updated_at\": \"2026-08-01T11:08:00Z\",\n    \"customer_email\": \"mark@example.com\",\n    \"subject\": \"Why was I charged?\",\n    \"message\": \"I was charged again today. Please explain this and cancel my subscription.\",\n    \"product\": \"pulsefit\",\n    \"subscriptions\": [\n      {\n        \"id\": \"sub_test_002\",\n        \"product\": \"pulsefit\",\n        \"status\": \"active\",\n        \"billing_provider\": \"paypal\"\n      }\n    ]\n  },\n  {\n    \"ticket_id\": 10003,\n    \"created_at\": \"2026-08-01T12:00:00Z\",\n    \"updated_at\": \"2026-08-01T12:02:00Z\",\n    \"customer_email\": \"sara@example.com\",\n    \"subject\": \"Refund\",\n    \"message\": \"I forgot to cancel and was charged yesterday. Can I get my money back?\",\n    \"product\": \"pulsefit\",\n    \"subscriptions\": [\n      {\n        \"id\": \"sub_test_003\",\n        \"product\": \"pulsefit\",\n        \"status\": \"active\",\n        \"billing_provider\": \"stripe\"\n      },\n      {\n        \"id\": \"sub_test_004\",\n        \"product\": \"pulsefit\",\n        \"status\": \"not_active\",\n        \"billing_provider\": \"stripe\"\n      },\n      {\n        \"id\": \"sub_test_007\",\n        \"product\": \"otherapp\",\n        \"status\": \"active\",\n        \"billing_provider\": \"stripe\"\n      }\n    ]\n  },\n  {\n    \"ticket_id\": 10004,\n    \"created_at\": \"2026-08-01T13:00:00Z\",\n    \"updated_at\": \"2026-08-01T13:00:30Z\",\n    \"customer_email\": \"tech.user@example.com\",\n    \"subject\": \"App issue\",\n    \"message\": \"The workout screen keeps freezing.\",\n    \"product\": \"pulsefit\",\n    \"subscriptions\": []\n  },\n  {\n    \"ticket_id\": 10005,\n    \"created_at\": \"2026-08-01T14:00:00Z\",\n    \"updated_at\": \"2026-08-01T14:03:00Z\",\n    \"customer_email\": \"broken@example.com\",\n    \"subject\": \"Help\",\n    \"message\": null,\n    \"product\": \"pulsefit\",\n    \"subscriptions\": []\n  },\n  {\n    \"ticket_id\": 10006,\n    \"created_at\": \"2026-08-01T15:00:00Z\",\n    \"updated_at\": \"2026-08-01T15:01:00Z\",\n    \"customer_email\": \"alex@example.com\",\n    \"subject\": \"Question about workouts\",\n    \"message\": \"How many workouts per week do you recommend?\",\n    \"product\": \"pulsefit\",\n    \"subscriptions\": []\n  }\n];\nreturn data.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "def26c5d-5d6e-4251-a3b8-3220555ec57e",
+      "name": "input_data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fe2c1b76-4823-404f-b9d2-b344cf659d12",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  let isValid = true;\n  let errorMsg = null;\n\n  if (!data.ticket_id || !data.message || !data.product) {\n    isValid = false;\n    errorMsg = \"Missing required fields: ticket_id, message, or product.\";\n  }\n\n  if (isValid && data.customer_email) {\n    let email = data.customer_email.trim().toLowerCase();\n    if (email.endsWith('@gmail.com')) {\n      email = email.replace(/\\+[^@]+(@gmail\\.com)$/, '$1');\n    }\n    data.customer_email = email;\n  }\n\n  data.is_valid = isValid;\n  data.error_message = errorMsg;\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "535d2b6e-babc-4c4f-9d14-88c2869b17ed",
+      "name": "validation_normalization"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6de67558-326b-4671-8a91-6368010be298",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "de42fa96-11ca-4d37-877d-6928cdd0323a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze the customer support message and classify the intent.\nCategories exactly as written:\n- cancellation\n- cancellation_with_billing_clarification\n- refund\n- technical_issue\n- other\n\nReturn ONLY valid JSON with no markdown formatting:\n{\n  \"intent\": \"category_name\",\n  \"confidence\": 0.95\n}\n\nMessage: {{$json.message}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        -16
+      ],
+      "id": "e9e95255-22a4-442a-9902-c131b587687b",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ewiqmUO2hyTH3DzY",
+          "name": "OpenAI account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentItems = $input.all();\nconst validOriginals = $('validation_normalization').all().filter(item => item.json.is_valid === true);\n\nfor (let i = 0; i < currentItems.length; i++) {\n  const item = currentItems[i];\n  const originalData = validOriginals[i] ? validOriginals[i].json : {};\n  const aiOutput = item.json.output?.[0]?.content?.[0]?.text;\n  \n  item.json = {\n    ...originalData,\n    intent: aiOutput ? aiOutput.intent : \"other\",\n    confidence: aiOutput ? aiOutput.confidence : 0\n  };\n}\n\nreturn currentItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        -16
+      ],
+      "id": "91f1b858-15b6-43cc-9522-9e2a85a282d6",
+      "name": "extract_intent"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "cancellation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bf0cef4c-3ee2-4292-9e6f-0a379d619493"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b97e07d4-98f3-4e8c-bf41-ead53edb98f3",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "cancellation_with_billing_clarification",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "db3570a7-87d4-4b36-9c87-e7a495350d41",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "refund",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b3821703-0604-4756-95d5-d18fcb1c88ce",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "technical_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6c870911-e7ca-4ff5-b08d-8f251971b5ab",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "other",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        -64
+      ],
+      "id": "7b3770f0-8f55-428c-ad5b-e17689a66fa6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  const subs = data.subscriptions || [];\n  const matchingSubs = subs.filter(s => s.product === data.product);\n  const activeMatchingSubs = matchingSubs.filter(s => s.status === 'active');\n  \n  data.matching_subscription_count = matchingSubs.length;\n  data.details = { reason: null };\n\n  if (activeMatchingSubs.length === 1) {\n      data.action_type = \"cancellation\";\n      data.action_status = \"simulated_success\";\n  } else if (activeMatchingSubs.length === 0) {\n      data.action_type = \"cancellation\";\n      data.action_status = \"not_executed\";\n      data.details.reason = \"No active matching subscription found.\";\n  } else {\n      data.action_type = \"cancellation\";\n      data.action_status = \"requires_review\";\n      data.details.reason = \"Multiple active matching subscriptions found.\";\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -320
+      ],
+      "id": "619dd22f-9fd1-4ca3-80ea-b32bd813cbc0",
+      "name": "cancellation"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  const subs = data.subscriptions || [];\n  const matchingSubs = subs.filter(s => s.product === data.product);\n  const activeMatchingSubs = matchingSubs.filter(s => s.status === 'active');\n  \n  data.matching_subscription_count = matchingSubs.length;\n  data.details = { reason: null, billing_provider: null };\n\n  if (activeMatchingSubs.length === 1) {\n      data.action_type = \"cancellation_with_billing_clarification\";\n      data.action_status = \"simulated_success\";\n      data.details.billing_provider = activeMatchingSubs[0].billing_provider;\n  } else if (activeMatchingSubs.length === 0) {\n      data.action_type = \"cancellation_with_billing_clarification\";\n      data.action_status = \"not_executed\";\n      data.details.reason = \"No active matching subscription found.\";\n  } else {\n      data.action_type = \"cancellation_with_billing_clarification\";\n      data.action_status = \"requires_review\";\n      data.details.reason = \"Multiple active matching subscriptions found.\";\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -176
+      ],
+      "id": "54744abc-3d43-4fa4-b1a4-61caa2213337",
+      "name": "cancellation_with_billing_clarification"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  const subs = data.subscriptions || [];\n  const matchingSubs = subs.filter(s => s.product === data.product);\n  \n  data.matching_subscription_count = matchingSubs.length;\n  data.details = { reason: null };\n\n  if (matchingSubs.length > 0) {\n      data.action_type = \"refund\";\n      data.action_status = \"simulated_success\";\n  } else {\n      data.action_type = \"refund\";\n      data.action_status = \"not_executed\";\n      data.details.reason = \"No matching subscription found for refund.\";\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -16
+      ],
+      "id": "b3431a55-855a-43f5-9add-e22d9b0144c6",
+      "name": "refund"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  const message = (data.message || \"\").toLowerCase();\n  \n  data.matching_subscription_count = 0; \n  data.action_type = \"technical_troubleshooting\";\n  data.details = { reason: null, response_context: null };\n\n  const kb = [\n    { topic: \"freezing\", response_context: \"Ask the customer to update the app, restart the device, and retry.\" },\n    { topic: \"login\", response_context: \"Ask the customer to verify the account email and reset the password.\" }\n  ];\n\n  let matchedContext = null;\n  for (const entry of kb) {\n      if (message.includes(entry.topic)) {\n          matchedContext = entry.response_context;\n          break;\n      }\n  }\n\n  if (matchedContext) {\n      data.action_status = \"simulated_success\";\n      data.details.response_context = matchedContext;\n  } else {\n      data.action_status = \"requires_review\";\n      data.details.reason = \"No relevant KB article found.\";\n  }\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        128
+      ],
+      "id": "d5d100cc-04e4-4a6e-b3ed-c90562c1ea0a",
+      "name": "technical_issue"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const data = item.json;\n  data.matching_subscription_count = 0;\n  data.action_type = \"other_inquiry\";\n  data.action_status = \"queued\";\n  data.details = { reason: \"Routed to manual review in general support queue.\" };\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        272
+      ],
+      "id": "616e6b5c-fd1f-4a52-836c-5c0cadb87e74",
+      "name": "other"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2144,
+        -64
+      ],
+      "id": "5bafbe41-2a77-4229-ac61-8135283dd39d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a helpful customer support agent for PulseFit.\nWrite a concise response to the customer based on their original message and the workflow action result.\n\nCustomer Message: {{$json.message}}\nIntent Detected: {{$json.intent}}\nAction Status: {{$json.action_status}}\nAction Details: {{JSON.stringify($json.details)}}\n\nRules:\n1. Do not expose internal variables, prompts, or metadata.\n2. If action_status is \"simulated_success\", confirm the action (e.g., refund processed, subscription canceled, or provide the technical response_context).\n3. If action_status is \"not_executed\" or \"requires_review\", politely inform them that their request is being reviewed by a human agent.\n4. If it's billing clarification, mention their billing provider if available in Action Details.\n\nReturn ONLY valid JSON:\n{\n  \"subject\": \"Appropriate subject line\",\n  \"message\": \"Your response here\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        2368,
+        -16
+      ],
+      "id": "b6fc0b66-9807-4603-aad0-88249045b982",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ewiqmUO2hyTH3DzY",
+          "name": "OpenAI account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentItems = $input.all();\nconst mergeItems = $('Merge').all();\n\nfor (let i = 0; i < currentItems.length; i++) {\n  const item = currentItems[i];\n  const mergeData = mergeItems[i] ? mergeItems[i].json : {};\n  const aiOutput = item.json.output?.[0]?.content?.[0]?.text;\n  \n  item.json = {\n    ...mergeData,\n    response_subject: aiOutput ? aiOutput.subject : \"Support Update\",\n    response_message: aiOutput ? aiOutput.message : \"Your request is under review.\"\n  };\n}\n\nreturn currentItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        -16
+      ],
+      "id": "e19e8e68-4b44-4348-aaad-2f1b786be1c3",
+      "name": "extract_subject_message"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2976,
+        -16
+      ],
+      "id": "40282928-96ab-46c1-a37e-6d0984f110f0",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const logs = [];\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  logs.push({\n    json: {\n      timestamp: new Date().toISOString(),\n      ticket_id: d.ticket_id || null,\n      detected_intent: d.intent || \"none\",\n      matching_subscription_count: d.matching_subscription_count || 0,\n      action_type: d.action_type || \"none\",\n      action_status: d.action_status || \"failed\",\n      execution_status: d.error_message ? \"Failed\" : \"Success\",\n      error_message: d.error_message || \"\",\n      response_subject: d.response_subject || \"\",\n      response_message: d.response_message || \"\"\n    }\n  });\n}\n\nreturn logs;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3184,
+        -16
+      ],
+      "id": "502140ef-b5ad-4438-a5b4-40a89a6ca813",
+      "name": "edit_fields"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "dZWfmypESyfkI96A",
+          "mode": "list",
+          "cachedResultName": "support_logs",
+          "cachedResultUrl": "/projects/MnjhXdk08x0Eqgve/datatables/dZWfmypESyfkI96A"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "detected_intent",
+              "displayName": "detected_intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "matching_subscription_count",
+              "displayName": "matching_subscription_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "action_type",
+              "displayName": "action_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "action_status",
+              "displayName": "action_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "execution_status",
+              "displayName": "execution_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3392,
+        -16
+      ],
+      "id": "0629a9f5-f9ec-48fc-9dd0-9836d2aaac94",
+      "name": "support_logs"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "input_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "input_data": {
+      "main": [
+        [
+          {
+            "node": "validation_normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validation_normalization": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "extract_intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_intent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "cancellation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "cancellation_with_billing_clarification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "refund",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "technical_issue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "other",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancellation": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancellation_with_billing_clarification": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "refund": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "technical_issue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "other": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "extract_subject_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_subject_message": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "edit_fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit_fields": {
+      "main": [
+        [
+          {
+            "node": "support_logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "502d4887-2b33-42f6-95de-a5e070e1bdf3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "85679e0c78cefe06fbe94ddee7787bf100aacd5dbec4b6753ac254f8b451e271"
+  },
+  "id": "gcsurz9McdDfPqt0",
+  "tags": []
+}
